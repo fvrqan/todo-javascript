@@ -1,8 +1,9 @@
 // Save to local storage
-    var data = (localStorage.getItem('todoList')) ? JSON.parse(localStorage.getItem('todoList')):  {
-      todo: [],
-      complete: [],
+  var data = (localStorage.getItem('todoList')) ? JSON.parse(localStorage.getItem('todoList')):  {
+    todo: [],
+    complete: [],
 };
+renderTodoList();
 
 
 // Remove and Complete SVG Icons
@@ -12,16 +13,40 @@
 // User clicked on the add button
 // If there is any text inside the item field, add that text to the todo list
 document.getElementById('add').addEventListener('click', function() {
-    var value = document.getElementById('item').value;
-    if (value) {
-      data.todo.push(value);
-      addItemTodo(value);
-      document.getElementById('item').value = '';
-
-      data.todo.push(value);
-      dataObjectUpdated();
-    }
+  var value = document.getElementById('item').value;
+  if (value) {
+    addItem(value);
+  }
 });
+
+
+document.getElementById('item').addEventListener('keydown', function (e) {
+  var value = this.value;
+  if ((e.code === 'Enter' || e.code === 'NumpadEnter') && value) {
+    addItem(value);
+  }
+});
+
+function addItem (value) {
+  addItemToDOM(value);
+  document.getElementById('item').value = '';
+
+  data.todo.push(value);
+  dataObjectUpdated();
+}
+
+function renderTodoList() {
+  if(!data.todo.length && !data.completed.length) return;
+
+  for(var i = 0; i < data.todo.length; i++ ) {
+    var value = data.todo[i];
+    addItemToDOM(value);
+  }
+
+  for(var j = 0; j < data.completed.length; j++ ) {
+    var value = data.completed[j];
+    addItemToDOM(value, true);
+}
 
 function dataObjectUpdated() {
   localStorage.setItem('todoList', JSON.stringify(data));
@@ -29,35 +54,35 @@ function dataObjectUpdated() {
 
 
 function removeItem() {
-    var item = this.parentNode.parentNode;
-    var parent = item.parentNode;
-    var id = parent.id;
-    var value = item.innerText;
-    
-    if (id === 'todo') {
-      data.todo.splice(data.todo.indexOf(value), 1);
-    } else {
-      data.completed.splice(data.complete.indexOf(value), 1);
-    }
-    parent.removeChild(item);
-    dataObjectUpdated();
+  var item = this.parentNode.parentNode;
+  var parent = item.parentNode;
+  var id = parent.id;
+  var value = item.innerText;
+
+  if (id === 'todo') {
+    data.todo.splice(data.todo.indexOf(value), 1);
+  } else {
+    data.completed.splice(data.completed.indexOf(value), 1);
   }
+  dataObjectUpdated();
+
+  parent.removeChild(item);
+}
 
 function completeItem() {
-    var item = this.parentNode.parentNode;
-    var parent = item.parentNode;
-    var id = parent.id;
-    var value = item.innerText;
+  var item = this.parentNode.parentNode;
+  var parent = item.parentNode;
+  var id = parent.id;
+  var value = item.innerText;
 
-    if (id === 'todo') {
-      data.todo.splice(data.todo.indexOf(value), 1);
-      data.completed.push(value);
-    } else {
-      data.completed.splice(data.complete.indexOf(value), 1);
-      data.todo.push(value);
-      dataObjectUpdated();
-    }
-    
+  if (id === 'todo') {
+    data.todo.splice(data.todo.indexOf(value), 1);
+    data.completed.push(value);
+  } else {
+    data.completed.splice(data.completed.indexOf(value), 1);
+    data.todo.push(value);
+  }
+  dataObjectUpdated();   
 
     // Check if the item should be added to the completed list or to re-added to the todo list
     var target = (id === 'todo') ? document.getElementById('completed'):document.getElementById('todo');
@@ -68,8 +93,8 @@ function completeItem() {
 
 
 // Adds a new item to the todo list
-function addItemTodo(text) {
-    var list = document.getElementById('todo');
+function addItemToDOM(text, completed) {
+    var list = (completed) ? document.getElementById('completed'):document.getElementById('todo');
 
     var item = document.createElement('li');
     item.innerText = text;
