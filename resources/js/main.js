@@ -1,8 +1,10 @@
-
-    var data = {    
+// Save to local storage
+    var data = (localStorage.getItem('todoList')) ? JSON.parse(localStorage.getItem('todoList')):  {
       todo: [],
-      complete: []
+      complete: [],
 };
+
+console.log( JSON.parse(localStorage.getItem('todoList')))
 
 
 // Remove and Complete SVG Icons
@@ -14,21 +16,50 @@
 document.getElementById('add').addEventListener('click', function() {
     var value = document.getElementById('item').value;
     if (value) {
-        addItemTodo(value);
+      data.todo.push(value);
+      addItemTodo(value);
+      document.getElementById('item').value = '';
+
+      data.todo.push(value);
+      dataObjectUpdated();
     }
 });
+
+function dataObjectUpdated() {
+  localStorage.setItem('todoList', JSON.stringify(data));
+}
+
 
 function removeItem() {
     var item = this.parentNode.parentNode;
     var parent = item.parentNode;
-  
+    var id = parent.id;
+    var value = item.innerText;
+    
+    if (id === 'todo') {
+      data.todo.splice(data.todo.indexOf(value), 1);
+    } else {
+      data.completed.splice(data.complete.indexOf(value), 1);
+    }
     parent.removeChild(item);
+    dataObjectUpdated();
   }
 
 function completeItem() {
     var item = this.parentNode.parentNode;
     var parent = item.parentNode;
     var id = parent.id;
+    var value = item.innerText;
+
+    if (id === 'todo') {
+      data.todo.splice(data.todo.indexOf(value), 1);
+      data.completed.push(value);
+    } else {
+      data.completed.splice(data.complete.indexOf(value), 1);
+      data.todo.push(value);
+      dataObjectUpdated();
+    }
+    
 
     // Check if the item should be added to the completed list or to re-added to the todo list
     var target = (id === 'todo') ? document.getElementById('completed'):document.getElementById('todo');
